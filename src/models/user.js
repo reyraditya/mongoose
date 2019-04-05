@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const isEmail = require('validator/lib/isEmail');
+const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -43,6 +44,17 @@ const userSchema = new mongoose.Schema({
             }
         }
     }
+})
+
+// function utk encrypt password
+userSchema.pre('save', async function (next) { // do something before save
+    const user = this  // access to user document {name, age, email, password}
+
+    if(user.isModified('password')){
+        user.password = await bcrypt.hash(user.password, 8) // hash the incoming password
+    }
+
+    next() // finish
 })
 
 const User = mongoose.model('User', userSchema) 
